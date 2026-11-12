@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    android:background="@drawable/bg_card_outlined"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <!-- 상단 영역: (좌) 고객명 + 발송 경과 시간 / (우) 모드 배지 + 과목 배지 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 좌측 영역: 고객명 + 경과시간 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/layoutHistoryBadges"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- 고객명 -->
+            <TextView
+                android:id="@+id/tvHistoryCustomerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="고객명"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- 발송 경과 시간 (예: 방금 전, 10분 전) -->
+            <TextView
+                android:id="@+id/tvHistoryTimeAgo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="방금 전"
+                android:textColor="@color/text_hint"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- 우측 상단 배지 그룹: [자동/수동] 배지 + 과목 배지 -->
+        <LinearLayout
+            android:id="@+id/layoutHistoryBadges"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- [자동] / [수동] 발송 구분 배지 -->
+            <TextView
+                android:id="@+id/tvHistoryModeBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge_gray"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="자동"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <!-- 과목 배지 (기타, 보컬, 드럼 등) -->
+            <TextView
+                android:id="@+id/tvHistorySubjectBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_badge_green"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="기타"
+                android:textColor="@color/badge_green_text"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
+        android:background="@color/border_line" />
+
+    <!-- 전화번호 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_phone"
+            app:tint="@color/text_secondary" />
+
+        <TextView
+            android:layout_width="68dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="번호"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvHistoryPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 이용일시 (세로 배치로 텍스트 겹침 방지) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_calendar"
+            app:tint="@color/text_secondary" />
+
+        <TextView
+            android:layout_width="68dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="이용일시"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvHistoryBookingDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 발송일시 (이용일시 밑에 세로로 배치) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_send"
+            app:tint="@color/text_secondary" />
+
+        <TextView
+            android:layout_width="68dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="발송일시"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvHistorySentTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 보낸 문자 내용 미리보기 박스 -->
+    <TextView
+        android:id="@+id/tvHistoryMessagePreview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_message_box"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:padding="12dp"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+</LinearLayout>

@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.BookingHelper" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.BookingHelper" parent="Base.Theme.BookingHelper" />
+    <!-- 로고 둥근 모서리 스타일 -->
+    <style name="RoundedCornerLogo">
+        <item name="cornerSize">8dp</item>
+    </style>
+    <!-- 하단 네비게이션 활성 탭 인디케이터 스타일 -->
+    <style name="CustomNavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/primary_light</item>
+        <item name="android:width">64dp</item>
+        <item name="android:height">32dp</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+</resources>

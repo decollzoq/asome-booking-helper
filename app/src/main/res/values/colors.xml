@@ -1,0 +1,31 @@
+<resources>
+    <!-- 메인 딥그린 -->
+    <color name="primary">#14533C</color>
+    <color name="primary_light">#E5EFE9</color>
+    <color name="primary_dark">#0D3B2B</color>
+
+    <!-- 배경 & 서피스 -->
+    <color name="bg_screen">#F3F5F7</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_subtle">#F8F9FA</color>
+    <color name="border_line">#ECEEF0</color>
+
+    <!-- 세그먼트 & 버튼 컬러 -->
+    <color name="segment_bg">#E5E8EB</color>
+    <color name="btn_navy">#1F2433</color>
+
+    <!-- 텍스트 컬러 -->
+    <color name="text_primary">#191F28</color>
+    <color name="text_secondary">#6B7684</color>
+    <color name="text_hint">#8B95A1</color>
+    <color name="text_light_gray">#ADB5BD</color>
+
+    <!-- 상태 & 배지 컬러 -->
+    <color name="status_connected">#20C997</color>
+    <color name="status_disconnected">#EF4444</color>
+    <color name="badge_orange_bg">#FFF0E6</color>
+    <color name="badge_orange_text">#FF6B00</color>
+    <color name="badge_green_bg">#E8F7F0</color>
+    <color name="badge_green_text">#1B9C68</color>
+    <color name="badge_red_text">#DC2626</color>
+</resources>

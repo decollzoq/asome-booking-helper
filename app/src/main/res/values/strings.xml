@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">BookingHelper</string>
+    <string name="accessibility_service_description">네이버 예약 건을 감지하여 예약자 정보를 자동으로 가져옵니다.</string>
+</resources>
