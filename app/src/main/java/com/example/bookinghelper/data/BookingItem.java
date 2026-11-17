@@ -18,7 +18,7 @@ public class BookingItem {
     public String userRequest;      // 요청사항 (없으면 "")
 
     public String status;           // "PENDING" (발송 대기) | "SENT" (발송 완료) | "DUPLICATE" (중복 / 변경 감지)
-    public String modeTag;          // "자동" | "수동"
+    public String modeTag;          // "자동" | "수동" | "중복/변경"
 
     public long createdAt;          // 알림 접수 타임스탬프
     public long sentAt;             // 문자 발송 타임스탬프
