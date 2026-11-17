@@ -46,11 +46,12 @@ public class MyNotificationListener extends NotificationListenerService {
 
             // 2. 예약자 이름 1차 추출
             String targetName = "";
-            Matcher matcher = namePattern.matcher(text.trim());
-            if (matcher.find()) {
-                targetName = matcher.group(1);
+            Matcher nameMatcher = namePattern.matcher(text.trim());
+            if (nameMatcher.find()) {
+                targetName = nameMatcher.group(1);
             }
             BookingState.targetCustomerName = targetName;
+
             Log.d(TAG, "추출 지점: " + branch + " | 타깃 고객명: " + targetName);
             Log.d(TAG, "===============================================");
 

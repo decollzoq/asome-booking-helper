@@ -2,6 +2,7 @@ package com.example.bookinghelper.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.ContentProviderOperation;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
@@ -10,14 +11,16 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.example.bookinghelper.util.BookingState;
-import com.example.bookinghelper.util.TemplateManager;
-import com.example.bookinghelper.util.TimeUtils;
 import com.example.bookinghelper.data.AppDatabase;
 import com.example.bookinghelper.data.BookingDao;
 import com.example.bookinghelper.data.BookingItem;
+import com.example.bookinghelper.ui.MainActivity;
+import com.example.bookinghelper.util.BookingState;
+import com.example.bookinghelper.util.TemplateManager;
+import com.example.bookinghelper.util.TimeUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
@@ -57,6 +60,21 @@ public class MyAccessibilityService extends AccessibilityService {
 
         Log.d(TAG, "[3-2] (" + attempt + "회차 스캔) 수집된 화면 텍스트 수: " + texts.size());
 
+        // 뒷배경 예약 목록을 건너뛰고 "예약 상세정보" 모달 시작 위치 탐색
+        int detailStartIndex = -1;
+        for (int i = 0; i < texts.size(); i++) {
+            if ("예약 상세정보".equals(texts.get(i))) {
+                detailStartIndex = i;
+                break;
+            }
+        }
+
+        if (detailStartIndex == -1) {
+            Log.d(TAG, "[대기] '예약 상세정보' 모달 렌더링 대기 중...");
+            retryOrFail(attempt);
+            return;
+        }
+
         String targetName = BookingState.targetCustomerName;
 
         String customerName = null;
@@ -65,60 +83,40 @@ public class MyAccessibilityService extends AccessibilityService {
         String bookingDate = null;
         String userRequest = "";
 
-        // 화면 파싱 (타깃 이름 앵커링 매칭 및 상태어 방어)
-        for (int i = 0; i < texts.size(); i++) {
+        // "예약 상세정보" 모달 내부(detailStartIndex ~ 끝)만 순회
+        for (int i = detailStartIndex; i < texts.size(); i++) {
             String current = texts.get(i);
 
-            // 1. 예약자 이름 블록 탐색
-            if (current.equals("예약자") && i + 1 < texts.size()) {
+            // 1. 예약자 (모달 내 '예약자관리' 아래 '예약자' 라벨 다음 텍스트)
+            if (customerName == null && "예약자".equals(current) && i + 1 < texts.size()) {
                 String candidateName = texts.get(i + 1).replace("님", "").trim();
-
-                boolean isStatusWord = candidateName.equals("확정") ||
-                        candidateName.equals("취소") ||
-                        candidateName.equals("신청") ||
-                        candidateName.equals("완료");
-
-                if (!isStatusWord && (targetName == null || targetName.isEmpty() || candidateName.equals(targetName))) {
+                if (targetName == null || targetName.isEmpty() || candidateName.equals(targetName)) {
                     customerName = candidateName;
-
-                    for (int j = i + 1; j < Math.min(i + 15, texts.size()); j++) {
-                        if (texts.get(j).equals("전화번호") && j + 1 < texts.size()) {
-                            String candidate = texts.get(j + 1).replace(" ", "");
-                            if (phonePattern.matcher(candidate).matches()) {
-                                rawPhone = candidate.replace("-", "");
-                                break;
-                            }
-                        }
-                    }
                 }
             }
 
-            // 2. 보조 전화번호 탐색
-            if (rawPhone == null) {
-                if (current.equals("전화번호") && i + 1 < texts.size()) {
-                    String candidate = texts.get(i + 1).replace(" ", "");
-                    if (phonePattern.matcher(candidate).matches()) {
-                        rawPhone = candidate.replace("-", "");
-                    }
-                } else if (phonePattern.matcher(current.replace(" ", "")).matches()) {
-                    rawPhone = current.replace(" ", "").replace("-", "");
+            // 2. 전화번호 (ContentDescription과 Text가 연속으로 오므로 패턴 일치하는 항목 추출)
+            if (rawPhone == null && "전화번호".equals(current) && i + 1 < texts.size()) {
+                String candidate = texts.get(i + 1).replace(" ", "");
+                if (phonePattern.matcher(candidate).matches()) {
+                    rawPhone = candidate.replace("-", "");
                 }
             }
 
-            // 3. 상품명
-            if (current.equals("상품") && i + 1 < texts.size()) {
+            // 3. 상품 (예약내역 -> 상품 다음 텍스트)
+            if (itemName == null && "상품".equals(current) && i + 1 < texts.size()) {
                 itemName = texts.get(i + 1).trim();
             }
 
-            // 4. 이용일시
-            if (current.equals("이용일시") && i + 1 < texts.size()) {
+            // 4. 이용일시 (이용일시 다음 텍스트)
+            if (bookingDate == null && "이용일시".equals(current) && i + 1 < texts.size()) {
                 bookingDate = texts.get(i + 1).trim();
             }
 
-            // 5. 요청사항
-            if (current.equals("요청사항") && i + 1 < texts.size()) {
+            // 5. 요청사항 (고객이 작성한 경우에만 모달에 라벨이 나타나며, 고정 라벨이 아닐 때만 저장)
+            if (userRequest.isEmpty() && "요청사항".equals(current) && i + 1 < texts.size()) {
                 String req = texts.get(i + 1).trim();
-                if (!req.equals("유입경로") && !req.equals("예약자입력정보") && !req.equals("결제예상정보") && !req.equals("직원메모")) {
+                if (!req.equals("유입경로") && !req.equals("결제예상정보") && !req.equals("직원메모") && !req.equals("-")) {
                     userRequest = req;
                 }
             }
@@ -140,7 +138,7 @@ public class MyAccessibilityService extends AccessibilityService {
             }
 
             Log.d(TAG, "===============================================");
-            Log.d(TAG, "[성공] 앵커링 정보 추출 완료!");
+            Log.d(TAG, "[성공] '예약 상세정보' 모달 정보 추출 완료!");
             Log.d(TAG, "지점: " + branch + " | 과목: " + subject);
             Log.d(TAG, "고객명: " + customerName + " | 번호: " + rawPhone);
             Log.d(TAG, "일시: " + bookingDate + " | 요청: " + (userRequest.isEmpty() ? "(없음)" : userRequest));
@@ -150,17 +148,18 @@ public class MyAccessibilityService extends AccessibilityService {
             String contactName = TemplateManager.buildContactName(getApplicationContext(), customerName, subject, branch);
             saveContact(contactName, rawPhone);
 
-            // DB 작업 및 발송 분기 (고객 번호 원본 전달)
+            // DB 작업 및 발송 분기
             processBookingDecision(branch, subject, customerName, rawPhone, bookingDate, itemName, userRequest);
 
-            // 홈으로 복귀
+            // 모든 모드 공통: 스마트플레이스 상세 화면 닫고 어썸 예약 비서 앱 전면 복귀
             performGlobalAction(GLOBAL_ACTION_BACK);
-            performGlobalAction(GLOBAL_ACTION_HOME);
-            Log.d(TAG, "[5] 상세 화면 종료 및 홈 복귀");
+            Intent returnIntent = new Intent(getApplicationContext(), MainActivity.class);
+            returnIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(returnIntent);
+            Log.d(TAG, "[5] 상세 화면 종료 및 어썸 예약 비서 앱 복귀");
 
         } else {
-            Log.d(TAG, "[스크롤 시도] 화면을 아래로 내려 숨은 텍스트 로드");
-            rootNode.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD);
+            Log.d(TAG, "[재시도] 상세 정보 하위 텍스트 로딩 대기 중...");
             retryOrFail(attempt);
         }
     }
@@ -204,7 +203,6 @@ public class MyAccessibilityService extends AccessibilityService {
                 dao.insert(item);
 
             } else if (BookingState.MODE_AUTO.equals(BookingState.currentMode)) {
-                // 실제 고객 번호로 발송
                 sendCustomSms(phone, message);
                 item.status = "SENT";
                 item.modeTag = "[자동]";
@@ -214,7 +212,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
             } else {
                 item.status = "PENDING";
-                item.modeTag = "[수동대기]";
+                item.modeTag = "[수동]";
                 item.sentAt = 0;
                 dao.insert(item);
                 Log.d(TAG, "[수동 모드] PENDING 대기 목록에 저장 (발송 대기)");
@@ -223,8 +221,8 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     private void retryOrFail(int attempt) {
-        if (attempt < 4 && BookingState.isProcessing) {
-            Log.d(TAG, "[재시도] 1초 후 재스캔 (" + (attempt + 1) + "/4)");
+        if (attempt < 5 && BookingState.isProcessing) {
+            Log.d(TAG, "[재시도] 1초 후 재스캔 (" + (attempt + 1) + "/5)");
             handler.postDelayed(() -> tryParseAndSend(attempt + 1), 1000);
         } else {
             Log.w(TAG, "[실패] 최종 탐색 실패: 예약 정보를 추출하지 못했습니다.");
