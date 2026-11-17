@@ -131,6 +131,8 @@ public class HistoryFragment extends Fragment {
         TextView tvItem = sheetView.findViewById(R.id.tvDetailItem);
         TextView tvDate = sheetView.findViewById(R.id.tvDetailDate);
         TextView tvSentAt = sheetView.findViewById(R.id.tvDetailSentAt);
+        View layoutRequest = sheetView.findViewById(R.id.layoutDetailRequest);
+        TextView tvRequest = sheetView.findViewById(R.id.tvDetailRequest);
         TextView tvMessageBody = sheetView.findViewById(R.id.tvDetailMessageBody);
         AppCompatButton btnConfirm = sheetView.findViewById(R.id.btnConfirmDetail);
 
@@ -148,6 +150,14 @@ public class HistoryFragment extends Fragment {
 
         long sentTimestamp = item.sentAt > 0 ? item.sentAt : item.createdAt;
         tvSentAt.setText(detailDateFormat.format(new Date(sentTimestamp)));
+
+        // 고객 요청사항이 있는 경우에만 노출
+        if (item.userRequest != null && !item.userRequest.trim().isEmpty()) {
+            layoutRequest.setVisibility(View.VISIBLE);
+            tvRequest.setText(item.userRequest.trim());
+        } else {
+            layoutRequest.setVisibility(View.GONE);
+        }
 
         tvMessageBody.setText(item.messageBody != null ? item.messageBody : "");
 

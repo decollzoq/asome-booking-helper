@@ -68,7 +68,10 @@ public class ReviewMessageBottomSheet extends BottomSheetDialogFragment {
         TextView tvAvatarInitial = view.findViewById(R.id.tvAvatarInitial);
         TextView tvCustomerName = view.findViewById(R.id.tvCustomerName);
         TextView tvCustomerPhone = view.findViewById(R.id.tvCustomerPhone);
-        TextView tvSubjectTag = view.findViewById(R.id.tvSubjectTag);
+        TextView tvSheetItem = view.findViewById(R.id.tvSheetItem);
+        TextView tvSheetDate = view.findViewById(R.id.tvSheetDate);
+        View layoutSheetRequest = view.findViewById(R.id.layoutSheetRequest);
+        TextView tvSheetRequest = view.findViewById(R.id.tvSheetRequest);
         EditText etMessagePreview = view.findViewById(R.id.etMessagePreview);
         ImageView btnClose = view.findViewById(R.id.btnSheetClose);
         AppCompatButton btnSend = view.findViewById(R.id.btnSendSms);
@@ -88,7 +91,18 @@ public class ReviewMessageBottomSheet extends BottomSheetDialogFragment {
                     }
                     tvCustomerName.setText(name);
                     tvCustomerPhone.setText(formatPhoneNumber(currentItem.phone));
-                    tvSubjectTag.setText(currentItem.subject);
+
+                    tvSheetItem.setText(currentItem.subject != null ? currentItem.subject : "기타");
+                    tvSheetDate.setText(currentItem.bookingDate != null ? currentItem.bookingDate : "-");
+
+                    // 요청사항이 있을 때만 노출
+                    if (currentItem.userRequest != null && !currentItem.userRequest.trim().isEmpty()) {
+                        layoutSheetRequest.setVisibility(View.VISIBLE);
+                        tvSheetRequest.setText(currentItem.userRequest.trim());
+                    } else {
+                        layoutSheetRequest.setVisibility(View.GONE);
+                    }
+
                     etMessagePreview.setText(currentItem.messageBody);
                 });
             }
